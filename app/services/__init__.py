@@ -4,6 +4,7 @@ from app.services.subscription_service import SubscriptionService
 from app.services.usage_service import UsageService
 from app.services.idempotency_service import IdempotencyService
 from app.services.quota_service import QuotaService
+from app.services.cost_service import CostService
 
 __all__ = [
     "TenantService",
@@ -12,4 +13,5 @@ __all__ = [
     "UsageService",
     "IdempotencyService",
     "QuotaService",
+    "CostService",
 ]
