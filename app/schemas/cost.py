@@ -13,7 +13,10 @@ class TokenCostBreakdown(BaseModel):
     
     @property
     def total_tokens(self) -> int:
-        return self.input_tokens + self.cached_input_tokens + self.output_tokens + self.reasoning_tokens
+        return (self.input_tokens + 
+                self.cached_input_tokens + 
+                self.output_tokens + 
+                self.reasoning_tokens)
     
     @property
     def total_cost_cents(self) -> int:

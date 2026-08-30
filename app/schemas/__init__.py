@@ -4,6 +4,7 @@ from typing import Optional
 from app.models.subscription import SubscriptionStatus
 from app.models.usage_event import UsageType
 from app.schemas.cost import TokenCostBreakdown, UsageCostResponse
+from app.schemas.usage_summary import UsageMetric, CostSummary, UsageSummaryResponse
 
 # ===== Tenant Schemas =====
 class TenantCreate(BaseModel):
@@ -120,17 +121,6 @@ class TokenCostBreakdown(BaseModel):
     output_cost_cents: int = 0
     reasoning_tokens: int = 0
     reasoning_cost_cents: int = 0
-    
-    @property
-    def total_tokens(self) -> int:
-        return self.input_tokens + self.cached_input_tokens + self.output_tokens + self.reasoning_tokens
-    
-    @property
-    def total_cost_cents(self) -> int:
-        return (self.input_cost_cents + 
-                self.cached_input_cost_cents + 
-                self.output_cost_cents + 
-                self.reasoning_cost_cents)
 
 class UsageCostResponse(BaseModel):
     tenant_id: int
@@ -140,18 +130,25 @@ class UsageCostResponse(BaseModel):
     api_cost_cents: int
     token_breakdown: TokenCostBreakdown
     total_cost_cents: int
-    
-    @property
-    def total_cost_dollars(self) -> float:
-        return self.total_cost_cents / 100
-    
-    @property
-    def api_cost_dollars(self) -> float:
-        return self.api_cost_cents / 100
-    
-    @property
-    def token_cost_dollars(self) -> float:
-        return self.token_breakdown.total_cost_cents / 100
+
+# ===== Usage Summary Schemas =====
+class UsageMetric(BaseModel):
+    used: int
+    limit: int
+    percentage: Optional[float] = None
+
+class CostSummary(BaseModel):
+    amount: int
+    currency: str = "USD"
+
+class UsageSummaryResponse(BaseModel):
+    tenant_id: int
+    plan: str
+    api_calls: UsageMetric
+    ai_tokens: UsageMetric
+    cost: CostSummary
+    period: str
+    token_breakdown: Optional[dict] = None
 
 # ===== Exports =====
 __all__ = [
@@ -171,4 +168,7 @@ __all__ = [
     "QuotaCheckResponse",
     "TokenCostBreakdown",
     "UsageCostResponse",
+    "UsageMetric",
+    "CostSummary",
+    "UsageSummaryResponse",
 ]
