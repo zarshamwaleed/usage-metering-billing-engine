@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api import health, database, tenants, plans, subscriptions, usage, quota, cost, usage_summary
+from app.api import health, database, tenants, plans, subscriptions, usage, quota, cost, usage_summary, stripe
 
 app = FastAPI(
     title="Usage Metering & Billing Engine",
@@ -28,6 +28,7 @@ app.include_router(usage.router, prefix=settings.API_PREFIX, tags=["usage"])
 app.include_router(quota.router, prefix=settings.API_PREFIX, tags=["quota"])
 app.include_router(cost.router, prefix=settings.API_PREFIX, tags=["cost"])
 app.include_router(usage_summary.router, prefix=settings.API_PREFIX, tags=["usage_summary"])
+app.include_router(stripe.router, prefix=settings.API_PREFIX, tags=["stripe"])
 
 @app.get("/")
 async def root():

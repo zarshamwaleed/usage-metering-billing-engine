@@ -6,6 +6,7 @@ from app.services.idempotency_service import IdempotencyService
 from app.services.quota_service import QuotaService
 from app.services.cost_service import CostService
 from app.services.usage_summary_service import UsageSummaryService
+from app.services.stripe_service import StripeService
 
 __all__ = [
     "TenantService",
@@ -16,4 +17,5 @@ __all__ = [
     "QuotaService",
     "CostService",
     "UsageSummaryService",
+    "StripeService",
 ]
