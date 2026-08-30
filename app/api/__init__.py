@@ -1,4 +1,4 @@
-﻿from app.api import health, database, tenants, plans, subscriptions, usage
+﻿from app.api import health, database, tenants, plans, subscriptions, usage, quota
 
 __all__ = [
     "health",
@@ -7,4 +7,5 @@ __all__ = [
     "plans",
     "subscriptions",
     "usage",
+    "quota",
 ]
