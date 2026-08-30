@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api import health, database
+from app.api import health, database, tenants, plans, subscriptions
 
 app = FastAPI(
     title="Usage Metering & Billing Engine",
@@ -11,7 +11,6 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,9 +19,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(health.router, prefix=settings.API_PREFIX, tags=["health"])
 app.include_router(database.router, prefix=settings.API_PREFIX, tags=["database"])
+app.include_router(tenants.router, prefix=settings.API_PREFIX, tags=["tenants"])
+app.include_router(plans.router, prefix=settings.API_PREFIX, tags=["plans"])
+app.include_router(subscriptions.router, prefix=settings.API_PREFIX, tags=["subscriptions"])
 
 @app.get("/")
 async def root():

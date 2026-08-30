@@ -1,2 +1,1 @@
-﻿# API module
-from app.api import health, database
+﻿from app.api import health, database, tenants, plans, subscriptions

@@ -7,13 +7,11 @@ router = APIRouter()
 
 @router.get("/db-check")
 def check_database(db: Session = Depends(get_db)):
-    \"\"\"Check database status - for testing only\"\"\"
     tenants = db.query(Tenant).count()
     plans = db.query(Plan).count()
     subscriptions = db.query(Subscription).count()
     usage_events = db.query(UsageEvent).count()
 
-    # Get plan details
     plan_details = []
     for plan in db.query(Plan).all():
         plan_details.append({
