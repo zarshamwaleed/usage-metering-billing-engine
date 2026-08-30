@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum, BigInteger
+﻿from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum, BigInteger, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 import enum
@@ -20,10 +20,9 @@ class UsageEvent(Base):
     # Relationships
     tenant = relationship("Tenant", back_populates="usage_events")
 
-    # Unique constraint to prevent duplicate events
+    # Unique constraint to prevent duplicate events at database level
     __table_args__ = (
-        # tenant_id + idempotency_key must be unique
-        # This is the heart of idempotency
+        UniqueConstraint('tenant_id', 'idempotency_key', name='uq_tenant_idempotency'),
     )
 
     def __repr__(self):
