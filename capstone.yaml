@@ -1,0 +1,159 @@
+# FlyRank Capstone Submission Manifest
+# Usage Metering & Billing Engine
+
+project:
+  name: "Usage Metering & Billing Engine"
+  version: "1.0.0"
+  author: "Zarsham Waleed"
+  email: "zarshamwaleedbutt@gmail.com"
+  repository: "https://github.com/zarshamwaleed/usage-metering-billing-engine"
+
+run:
+  command: "docker compose up -d"
+  description: "Start the application with Docker Compose"
+
+seed:
+  command: "docker compose exec api python scripts/seed_data.py"
+  description: "Seed the database with initial plans and demo tenant"
+
+test:
+  command: "docker compose exec api pytest tests/ -v"
+  description: "Run all tests (11 tests, all passing)"
+
+base_url: "http://localhost:8000"
+
+endpoints:
+  - path: "/api/v1/health"
+    method: "GET"
+    expected_status: 200
+    description: "Health check endpoint"
+
+  - path: "/api/v1/plans"
+    method: "GET"
+    expected_status: 200
+    description: "List all plans"
+
+  - path: "/api/v1/tenants"
+    method: "POST"
+    expected_status: 201
+    description: "Create a tenant"
+
+  - path: "/api/v1/tenants/1"
+    method: "GET"
+    expected_status: 200
+    description: "Get tenant details"
+
+  - path: "/api/v1/usage/1"
+    method: "GET"
+    expected_status: 200
+    description: "Get usage summary"
+
+  - path: "/api/v1/quota/1"
+    method: "GET"
+    expected_status: 200
+    description: "Check quota status"
+
+  - path: "/api/v1/cost/1"
+    method: "GET"
+    expected_status: 200
+    description: "Get cost breakdown"
+
+probes:
+  - name: "Idempotency"
+    description: "Same request twice → one usage event"
+    endpoint: "/api/v1/generate"
+    method: "POST"
+    headers:
+      - "idempotency-key: test-probe-001"
+    body:
+      input_tokens: 100
+      output_tokens: 50
+    expected:
+      first_request_status: "recorded"
+      second_request_status: "duplicate"
+      database_events: 1
+
+  - name: "Quota Boundary"
+    description: "Drive tenant to limit → 429 response"
+    endpoint: "/api/v1/generate"
+    method: "POST"
+    headers:
+      - "idempotency-key: quota-probe-001"
+    body:
+      input_tokens: 1
+    expected:
+      status_code: 429
+
+  - name: "Stripe Checkout"
+    description: "Free → PRO upgrade via mock checkout"
+    endpoint: "/api/v1/billing/create-checkout-session"
+    method: "POST"
+    body:
+      tenant_id: 1
+      plan_name: "PRO"
+    expected:
+      checkout_url: "http://localhost:8000/api/v1/stripe/mock-checkout"
+      tenant_plan: "PRO"
+
+  - name: "Forged Webhook"
+    description: "Invalid signature → 400"
+    endpoint: "/api/v1/webhooks/stripe"
+    method: "POST"
+    headers:
+      - "stripe-signature: invalid_signature"
+    body:
+      id: "evt_test_123"
+      type: "checkout.session.completed"
+      data:
+        object:
+          client_reference_id: "1"
+    expected:
+      status_code: 400
+
+  - name: "Duplicate Webhook"
+    description: "Same event twice → processed once"
+    endpoint: "/api/v1/webhooks/stripe"
+    method: "POST"
+    headers:
+      - "stripe-signature: mock_signature"
+    body:
+      id: "evt_duplicate_test_001"
+      type: "checkout.session.completed"
+      data:
+        object:
+          client_reference_id: "1"
+          mock: true
+          tenant_id: "1"
+    expected:
+      first_processed: true
+      second_ignored: true
+      database_events: 1
+
+features:
+  - "Idempotent usage metering"
+  - "Quota enforcement with 429/402 responses"
+  - "AI token pricing (cached tokens cheaper, reasoning = output)"
+  - "Stripe test mode integration (mock mode for Pakistan)"
+  - "Webhook signature verification"
+  - "Webhook deduplication"
+  - "Background jobs for aggregation"
+  - "Comprehensive test suite (11/11 passing)"
+  - "Money as integer cents"
+
+dependencies:
+  - "Python 3.11"
+  - "FastAPI"
+  - "PostgreSQL 15"
+  - "Docker"
+  - "Docker Compose"
+  - "SQLAlchemy"
+  - "Alembic"
+  - "Pytest"
+
+notes: |
+  - Stripe is in mock mode (Stripe not available in Pakistan)
+  - All 11 tests pass
+  - PostgreSQL with Docker
+  - Money stored as integer cents
+
+submission_date: "2026-08-31"
