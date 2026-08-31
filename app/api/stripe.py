@@ -1,8 +1,9 @@
 ﻿from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas import CheckoutSessionRequest, CheckoutSessionResponse
-from app.services import StripeService
+from app.services import StripeService, WebhookService
 from app.repositories import TenantRepository
 
 router = APIRouter()
@@ -49,11 +50,7 @@ def mock_checkout(
     plan: str = "PRO",
     db: Session = Depends(get_db)
 ):
-    # Process the mock checkout
-    result = StripeService.process_mock_checkout(db, tenant_id, session_id, plan)
-    
-    # Redirect to success page
-    from fastapi.responses import RedirectResponse
+    result = WebhookService.create_mock_webhook_event(db, tenant_id, "checkout.session.completed")
     return RedirectResponse(url=f"/api/v1/stripe/success?tenant_id={tenant_id}&session_id={session_id}")
 
 @router.get("/stripe/success")

@@ -7,6 +7,7 @@ from app.services.quota_service import QuotaService
 from app.services.cost_service import CostService
 from app.services.usage_summary_service import UsageSummaryService
 from app.services.stripe_service import StripeService
+from app.services.webhook_service import WebhookService
 
 __all__ = [
     "TenantService",
@@ -18,4 +19,5 @@ __all__ = [
     "CostService",
     "UsageSummaryService",
     "StripeService",
+    "WebhookService",
 ]
