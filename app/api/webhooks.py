@@ -15,18 +15,18 @@ async def stripe_webhook(request: Request):
     try:
         result = WebhookService.process_webhook_event(db, payload, signature)
         status_code = result.get("code", 200)
-        status = result.get("status", "success")
+        result_status = result.get("status", "success")
         message = result.get("message", "Webhook processed")
         
         if status_code != 200:
             return Response(
-                content=f'{{"status":"{status}","message":"{message}"}}',
+                content=f'{{"status":"{result_status}","message":"{message}"}}',
                 status_code=status_code,
                 media_type="application/json"
             )
         
         return {
-            "status": status,
+            "status": result_status,
             "message": message,
             "event_id": result.get("event_id"),
             "details": result.get("details", {})
