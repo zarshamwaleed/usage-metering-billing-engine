@@ -1,4 +1,4 @@
-﻿from app.api import health, database, tenants, plans, subscriptions, usage, quota, cost, usage_summary, stripe, webhooks, background_jobs
+﻿from app.api import health, database, tenants, plans, subscriptions, usage, quota, cost, usage_summary, stripe, webhooks, background_jobs, ui
 
 __all__ = [
     "health",
@@ -13,4 +13,5 @@ __all__ = [
     "stripe",
     "webhooks",
     "background_jobs",
+    "ui",
 ]
